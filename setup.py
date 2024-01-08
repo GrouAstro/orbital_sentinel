@@ -1,4 +1,11 @@
-from setuptools import setup
+import os
+from setuptools import setup, find_namespace_packages
+
+if os.path.exists("README.md"):
+    long_description = open("README.md").read()
+else:
+    long_description = 'This repository host files for robotics, aerodynamics and RF projects'\
+                        'Only available on raspberry 3 and 4.'
 
 setup(
     name="orbital_sentinel",
@@ -10,13 +17,13 @@ setup(
     install_requires=[
         "wheel",
         "Sphinx>=4.5",
-        "numpy >= >= 1.14.5,<2.0.0",
+        "numpy >= 1.14.5,<2.0.0",
         "scipy",
         "pyserial",  
         "RPi.GPIO",
         "toml"
 
     ],
-    extras_require=extras_require,
+
     python_requires=">=3.9, < 4",
 )
