@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-from robot_structs.motor import Motor
+from tracker.robot_structs.motor import Motor
 import toml
 
 
