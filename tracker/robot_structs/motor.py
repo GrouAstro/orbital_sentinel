@@ -1,4 +1,4 @@
-#import RPi.GPIO as gpio
+import RPi.GPIO as gpio
 import toml
 import time
 
@@ -8,7 +8,7 @@ class Motor:
     This class represents one motor of the tracker.
     """
 
-    def __init__(self, config_file: dict, motor_type: str):
+    def __init__(self, config_file: str, motor_type: str):
         """Initialize a new motor.
         Args:
             config_file: The global configuration for motorization.
@@ -34,11 +34,11 @@ class Motor:
         self.state_motor = False
 
         # Configuration des broches GPIO
-        # gpio.setmode(gpio.BCM)                # TODO uncomment
-        # gpio.setup(self.stp_pin, gpio.OUT)    # TODO uncomment
-        # gpio.setup(self.dir_pin, gpio.OUT)    # TODO uncomment
-        # gpio.setup(self.ena_pin, gpio.OUT)    # TODO uncomment
-        # gpio.setup(self.end_pin, gpio.IN)     # TODO uncomment
+        gpio.setmode(gpio.BCM)                # TODO uncomment
+        gpio.setup(self.stp_pin, gpio.OUT)    # TODO uncomment
+        gpio.setup(self.dir_pin, gpio.OUT)    # TODO uncomment
+        gpio.setup(self.ena_pin, gpio.OUT)    # TODO uncomment
+        gpio.setup(self.end_pin, gpio.IN)     # TODO uncomment
 
         # Désactivation du mode d'arrêt d'urgence (enable)
         # gpio.output(self.ena_pin, gpio.HIGH)  # TODO check this
@@ -48,9 +48,9 @@ class Motor:
         Returns:
             One step done.
         """
-        # gpio.output(self.stp_pin, gpio.HIGH) # TODO uncomment
+        gpio.output(self.stp_pin, gpio.HIGH) # TODO uncomment
         time.sleep(self.delay)
-        # gpio.output(self.stp_pin, gpio.LOW) # TODO uncomment
+        gpio.output(self.stp_pin, gpio.LOW) # TODO uncomment
         time.sleep(self.delay)
 
     def direction(self, motor_dir: str):
@@ -62,11 +62,11 @@ class Motor:
 
         if motor_dir == 'forward':
             md = 1  # TODO remove before push
-            #gpio.output(self.dir_pin, gpio.HIGH)   # TODO uncomment
+            gpio.output(self.dir_pin, gpio.HIGH)   # TODO uncomment
 
         elif motor_dir == 'backward':
             md = -1 # TODO remove before push
-            # gpio.output(self.dir_pin, gpio.LOW)   # TODO uncomment
+            gpio.output(self.dir_pin, gpio.LOW)   # TODO uncomment
 
         else:
             print('Incorrect direction')
@@ -75,11 +75,11 @@ class Motor:
 
         if motor_ena == 'lock':
             me = 1 # TODO remove before push
-            # gpio.output(self.ena_pin, gpio.HIGH)  # TODO uncomment
+            gpio.output(self.ena_pin, gpio.HIGH)  # TODO uncomment
 
         elif motor_ena == 'unlock':
             me = -1 # TODO remove before push
-            # gpio.output(self.ena_pin, gpio.LOW)   # TODO uncomment
+            gpio.output(self.ena_pin, gpio.LOW)   # TODO uncomment
 
         else:
             print('Incorrect cannot un/lock the motor')
@@ -95,12 +95,14 @@ class Motor:
         """
         if angle >= 0:
             self.direction('forward')
+            gpio.output(self.dir_pin, gpio.HIGH)
         else:
             self.direction('backward')
+            gpio.output(self.dir_pin, gpio.LOW)
 
         # Calcul du nombre de step pour satisfaire l'angle
         deg_stp = (360 / self.driver_stp) * self.ratio_eng
-        tgt_stp = angle / deg_stp
+        tgt_stp = abs(angle) / deg_stp
         int_tgt_stp = round(tgt_stp)
 
         # Rotation du moteur

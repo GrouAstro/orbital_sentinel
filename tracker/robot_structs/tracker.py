@@ -74,7 +74,7 @@ class Tracker:
         """
         ang_azi_delta = ang_azi_ref - self.ang_azi
 
-        self.ele_rotate(ang_azi_delta)
+        self.azi_rotate(ang_azi_delta)
 
     def bi_rotate_relative(self, ang_ele_ref: float, ang_azi_ref: float):
         """ Align the elevation and azimuth angles with the target from a referential.
