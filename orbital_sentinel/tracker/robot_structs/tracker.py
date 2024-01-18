@@ -1,6 +1,4 @@
-from typing import Any, Dict, List
-from tracker.robot_structs.motor import Motor
-import toml
+from tracker.robot_structs.tracker import Tracker
 
 
 class Tracker:
@@ -8,7 +6,7 @@ class Tracker:
     This represents a tracker that contains motor
     """
 
-    def __init__(self, config_file: Dict):
+    def __init__(self, config_file: str):
         print('Tracker initialize')
         self.motor_ele = Motor(config_file, motor_type="elevation")
         self.state_ang_ele = False
