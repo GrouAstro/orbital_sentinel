@@ -21,7 +21,8 @@ setup(
         "scipy",
         "pyserial",  
         "RPi.GPIO",
-        "toml"
+        "toml",
+        "pyserial"
 
     ],
 
