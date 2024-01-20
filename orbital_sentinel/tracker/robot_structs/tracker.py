@@ -15,6 +15,8 @@ class Tracker:
         self.motor_azi = Motor(config_file, motor_type="azimuth")
         self.state_ang_azi = False
         self.ang_azi = 0
+        self.position_lon = 0
+        self.position_lat = 0
 
     def ele_rotate(self, ang_ele: float):
         """Rotate around the elevation by adding angle value from the start position.
@@ -204,3 +206,10 @@ class Tracker:
         """
         self.get_ele_eng_ratio()
         self.get_azi_eng_ratio()
+
+    def get_position(self):
+
+            if self.position_lon & self.position_lat == 0:
+                print('Tracker not initialized')
+            else:
+                print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
