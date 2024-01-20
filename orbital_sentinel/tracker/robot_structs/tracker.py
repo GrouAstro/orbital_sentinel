@@ -1,4 +1,5 @@
-from tracker.robot_structs.tracker import Tracker
+from tracker.robot_structs.motor import Motor
+from tracker.robot_structs.gps import*
 
 
 class Tracker:

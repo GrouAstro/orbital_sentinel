@@ -159,3 +159,32 @@ def compute_data(nmea: str) -> dict:
     gps_features = {"position": position(data_device, nmea), "timestamp": timestamp(data_device, nmea)}
 
     return gps_features
+
+
+def compute_coordinate(nmea: str) -> dict:
+    """Compute gps time.
+    Args:
+        nmea: gps frame to use.
+    Returns: Time.
+
+    """
+    device = gps_device()
+    data_device = data_from_gps(device, nmea)
+
+    gps_position = {"position_gps": position(data_device, nmea)}
+
+    return gps_position
+
+
+def compute_time(nmea: str) -> dict:
+    """Compute gps position.
+    Args:
+        nmea: gps frame to use.
+    Returns: Position.
+    """
+    device = gps_device()
+    data_device = data_from_gps(device, nmea)
+
+    gps_position = {"time_gps": timestamp(data_device, nmea)}
+
+    return gps_position
