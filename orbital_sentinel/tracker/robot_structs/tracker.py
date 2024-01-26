@@ -1,5 +1,5 @@
-from tracker.robot_structs.motor import Motor
-from tracker.robot_structs.gps import*
+from orbital_sentinel.tracker.robot_structs.motor import Motor
+from orbital_sentinel.tracker.gps import compute_coordinate, compute_time
 
 
 class Tracker:
@@ -208,8 +208,24 @@ class Tracker:
         self.get_azi_eng_ratio()
 
     def get_position(self):
+        """
 
-            if self.position_lon & self.position_lat == 0:
-                print('Tracker not initialized')
-            else:
-                print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
+        Returns:
+
+        """
+
+        if self.position_lon & self.position_lat == 0:
+            print('Tracker not initialized')
+        else:
+            print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
+
+    def set_position(self):
+        """
+
+        Returns:
+
+        """
+        data = compute_coordinate('$GPRMC')
+        self.position_lon = data['longitude']
+        self.position_lat = data['latitude']
+
