@@ -171,7 +171,7 @@ def compute_coordinate(nmea: str) -> dict:
     device = gps_device()
     data_device = data_from_gps(device, nmea)
 
-    gps_position = {"position_gps": position(data_device, nmea)}
+    gps_position = position(data_device, nmea)
 
     return gps_position
 
@@ -185,6 +185,6 @@ def compute_time(nmea: str) -> dict:
     device = gps_device()
     data_device = data_from_gps(device, nmea)
 
-    gps_position = {"time_gps": timestamp(data_device, nmea)}
+    gps_time = timestamp(data_device, nmea)
 
-    return gps_position
+    return gps_time
