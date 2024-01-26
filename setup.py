@@ -13,7 +13,7 @@ setup(
     description="",
     author="OLLIVIER Roman",
     author_email="roman.ollivier@outlook.fr",
-    packages=["orbital_sentinel"],
+    packages=find_namespace_packages(include=["tracker.robot_structs.*"]),
     install_requires=[
         "wheel",
         "Sphinx>=4.5",
@@ -21,7 +21,8 @@ setup(
         "scipy",
         "pyserial",  
         "RPi.GPIO",
-        "toml"
+        "toml",
+        "pyserial"
 
     ],
 
