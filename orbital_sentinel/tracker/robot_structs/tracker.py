@@ -1,5 +1,5 @@
 from orbital_sentinel.tracker.robot_structs.motor import Motor
-from orbital_sentinel.tracker.gps import compute_coordinate, compute_time
+from orbital_sentinel.tracker.gps.gps_utils import compute_coordinate, compute_time
 
 
 class Tracker:
