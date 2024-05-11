@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: orbital-sentinel
+Version: 0.1
+Author: OLLIVIER Roman
+Author-email: roman.ollivier@outlook.fr
+Requires-Python: >=3.9, < 4
+Requires-Dist: wheel
+Requires-Dist: Sphinx>=4.5
+Requires-Dist: numpy<2.0.0,>=1.14.5
+Requires-Dist: scipy
+Requires-Dist: pyserial
+Requires-Dist: RPi.GPIO
+Requires-Dist: toml
+Requires-Dist: pyserial

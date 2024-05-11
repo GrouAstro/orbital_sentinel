@@ -1,0 +1,8 @@
+wheel
+Sphinx>=4.5
+numpy<2.0.0,>=1.14.5
+scipy
+pyserial
+RPi.GPIO
+toml
+pyserial

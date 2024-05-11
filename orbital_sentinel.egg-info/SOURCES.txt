@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+setup.py
+orbital_sentinel.egg-info/PKG-INFO
+orbital_sentinel.egg-info/SOURCES.txt
+orbital_sentinel.egg-info/dependency_links.txt
+orbital_sentinel.egg-info/requires.txt
+orbital_sentinel.egg-info/top_level.txt
