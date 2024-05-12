@@ -17,6 +17,7 @@ class Tracker:
         self.ang_azi = 0
         self.position_lon = 0
         self.position_lat = 0
+        self.target = 0
 
     def ele_rotate(self, ang_ele: float):
         """Rotate around the elevation by adding angle value from the start position.
@@ -219,7 +220,7 @@ class Tracker:
         else:
             print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
 
-    def set_position(self):
+    def set_position_auto(self):
         """
 
         Returns:
@@ -228,4 +229,18 @@ class Tracker:
         data = compute_coordinate('$GPRMC')
         self.position_lon = data['longitude']
         self.position_lat = data['latitude']
+
+    def set_position_manual(self, lon_value : float, lat_value : float):
+        """
+
+        Args:
+            lon_value:
+            lat_value:
+
+        Returns:
+
+        """
+        self.position_lon = lon_value
+        self.position_lat = lat_value
+
 
