@@ -22,7 +22,8 @@ setup(
         "pyserial",  
         "RPi.GPIO",
         "toml",
-        "pyserial"
+        "pyserial",
+        "skyfield"
 
     ],
 
