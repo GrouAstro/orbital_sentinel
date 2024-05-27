@@ -1,4 +1,5 @@
 from orbital_sentinel.tracker.robot_structs.motor import Motor
+from orbital_sentinel.tracker.robot_structs.target import Orbital_target_natural, Orbital_target_earth
 from orbital_sentinel.tracker.gps import compute_coordinate, compute_time
 
 
@@ -8,16 +9,21 @@ class Tracker:
     """
 
     def __init__(self, config_file: str):
+
         print('Tracker initialize')
+
         self.motor_ele = Motor(config_file, motor_type="elevation")
         self.state_ang_ele = False
         self.ang_ele = 0
+
         self.motor_azi = Motor(config_file, motor_type="azimuth")
         self.state_ang_azi = False
         self.ang_azi = 0
+
         self.position_lon = 0
         self.position_lat = 0
-        self.target = 0
+
+        self.target = 'None'
 
     def ele_rotate(self, ang_ele: float):
         """Rotate around the elevation by adding angle value from the start position.
@@ -243,4 +249,7 @@ class Tracker:
         self.position_lon = lon_value
         self.position_lat = lat_value
 
+    def create_target(self, id_target: str):
 
+        self.target = id_target
+        self.target_object = Orbital_target_natural(self.target)
