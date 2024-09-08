@@ -1,5 +1,8 @@
 from orbital_sentinel.tracker.robot_structs.motor import Motor
-from orbital_sentinel.tracker.gps import compute_coordinate, compute_time
+from orbital_sentinel.tracker.robot_structs.target import Orbital_target_natural
+from orbital_sentinel.tracker.gps import compute_coordinate
+
+from time import sleep
 
 
 class Tracker:
@@ -8,15 +11,28 @@ class Tracker:
     """
 
     def __init__(self, config_file: str):
+
         print('Tracker initialize')
+
         self.motor_ele = Motor(config_file, motor_type="elevation")
         self.state_ang_ele = False
         self.ang_ele = 0
+
         self.motor_azi = Motor(config_file, motor_type="azimuth")
         self.state_ang_azi = False
         self.ang_azi = 0
+
         self.position_lon = 0
         self.position_lat = 0
+        self.position_alt = 0
+
+        self.target = 'None'
+
+    def set_position(self, longitude, latitude, altitude):
+
+        self.position_lon = longitude
+        self.position_lat = latitude
+        self.position_alt = altitude
 
     def ele_rotate(self, ang_ele: float):
         """Rotate around the elevation by adding angle value from the start position.
@@ -27,8 +43,9 @@ class Tracker:
         Returns:
             The angle value after rotation.
         """
-
-        self.ang_ele = self.motor_ele.rotate(ang_ele)
+        print('Rotation elevation == ', ang_ele)
+        self.motor_ele.rotate(ang_ele)
+        self.ang_ele = self.motor_ele.current_angle
 
     def azi_rotate(self, ang_azi: float):
         """Rotate around the azimuth by adding angle value from the start position.
@@ -39,8 +56,9 @@ class Tracker:
         Returns:
             The angle value after rotation.
         """
-
-        self.ang_azi = self.motor_azi.rotate(ang_azi)
+        print('Rotation azimuth == ', ang_azi)
+        self.motor_azi.rotate(ang_azi)
+        self.ang_azi = self.motor_azi.current_angle
 
     def bi_rotate(self, ang_ele: float, ang_azi: float):
         """Rotate around the azimuth and elevation by adding angle values from the start positions.
@@ -89,6 +107,7 @@ class Tracker:
         """
         ang_ele_delta = ang_ele_ref - self.ang_ele
         ang_azi_delta = ang_azi_ref - self.ang_azi
+
         self.bi_rotate(ang_ele_delta, ang_azi_delta)
 
     def get_angles(self):
@@ -98,14 +117,15 @@ class Tracker:
             The azimuth value.
             The elevation value.
         """
-
-        return self.ang_ele, self.ang_azi
+        print(self.ang_ele, self.ang_azi)
+        return
 
     def disp_angles(self):
 
         if self.state_ang_ele is True and self.state_ang_azi is True:
 
-            print('Angle Elevation : ', self.ang_ele, 'Angle Azimuth : ', self.ang_azi)
+            print('Angle Azimuth : ', self.ang_azi,
+                  'Angle Elevation : ', self.ang_ele)
 
         elif self.state_ang_ele is False and self.state_ang_azi is False:
 
@@ -139,14 +159,16 @@ class Tracker:
         """Use current elevation value as new referential.
 
         """
-        self.ang_ele = self.motor_ele.position_ref()
+        # self.ang_ele = self.motor_ele.position_ref()*
+        self.ang_ele = 0
         self.state_ang_ele = True
 
     def azi_ref(self):
         """Use current azimuth value as new referential.
 
         """
-        self.ang_azi = self.motor_azi.position_ref()
+        # self.ang_azi = self.motor_azi.position_ref()
+        self.ang_azi = 0
         self.state_ang_azi = True
 
     def bi_ref(self):
@@ -214,12 +236,12 @@ class Tracker:
 
         """
 
-        if self.position_lon & self.position_lat == 0:
-            print('Tracker not initialized')
-        else:
-            print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
+        # if self.position_lon & self.position_lat == 0.0:
+        #    print('Tracker not initialized')
+        # else:
+        print('Longitude : ', self.position_lon, ' | Latitude : ', self.position_lat)
 
-    def set_position(self):
+    def set_position_auto(self):
         """
 
         Returns:
@@ -228,4 +250,79 @@ class Tracker:
         data = compute_coordinate('$GPRMC')
         self.position_lon = data['longitude']
         self.position_lat = data['latitude']
+
+    def set_position_manual(self, lon_value: float, lat_value: float, alt_value: float):
+        """
+
+        Args:
+            lon_value:
+            lat_value:
+            alt_value:
+
+        Returns:
+
+        """
+        self.position_lon = lon_value
+        self.position_lat = lat_value
+        self.position_alt = alt_value
+
+    def create_target(self, id_target: str):
+
+        self.target = Orbital_target_natural(id_target)
+        print('New target : ', id_target)
+
+    def change_target(self, id_new_target: str):
+
+        self.target.change_target(id_new_target)
+
+    def point_target(self):
+        """
+
+        Returns:
+
+        """
+
+        print(self.get_angles())
+        self.target.compute_position(self.position_lat,
+                                     self.position_lon,
+                                     self.position_alt)
+        if self.target.visibility == 1:
+            delta_a = self.target.azimuth
+            delta_e = self.target.elevation
+
+            self.bi_rotate_relative(delta_e, delta_a)
+            print('Target Lock')
+
+        elif self.target.visibility == 0:
+            print('Target not available, abord pointing')
+
+    def tracking_target(self):
+        """
+
+        Returns:
+
+        """
+
+        while True:
+
+            try:
+                self.point_target()
+                sleep(0.05)
+
+            except KeyboardInterrupt:
+                print('Stop tracking mod')
+                break
+
+    def get_target_info(self):
+        """
+
+        Returns:
+
+        """
+
+        self.target.compute_position(self.position_lat,
+                                     self.position_lon,
+                                     self.position_alt)
+        self.target.get_position()
+
 

@@ -1,4 +1,4 @@
-import RPi.GPIO as gpio
+# import RPi.GPIO as gpio
 import toml
 import time
 
@@ -16,7 +16,7 @@ class Motor:
         """
         print('initialisation du moteur : ', motor_type)
         conf = toml.load(config_file)
-
+        self.motor_type = motor_type
         self.stp_pin = conf["motor"][motor_type]["stp"]
         self.dir_pin = conf["motor"][motor_type]["dir"]
         self.ena_pin = conf["motor"][motor_type]["ena"]
@@ -24,21 +24,24 @@ class Motor:
 
         self.driver_stp = conf["motor"][motor_type]["step"]
         self.ratio_eng = conf["motor"][motor_type]["eng_1"] / conf["motor"][motor_type]["eng_2"]
+        self.deg_stp = (360 / self.driver_stp) * self.ratio_eng
 
         self.delay = 0.0005
         self.speed = (self.driver_stp / self.ratio_eng) * (self.delay * 2)
+        self.sens = 0
+        self.brake = 0
 
         self.n_step = 0
 
-        self.current_angle = 0.0
+        self.current_angle = 0
         self.state_motor = False
 
         # Configuration des broches GPIO
-        gpio.setmode(gpio.BCM)                # TODO uncomment
-        gpio.setup(self.stp_pin, gpio.OUT)    # TODO uncomment
-        gpio.setup(self.dir_pin, gpio.OUT)    # TODO uncomment
-        gpio.setup(self.ena_pin, gpio.OUT)    # TODO uncomment
-        gpio.setup(self.end_pin, gpio.IN)     # TODO uncomment
+        # gpio.setmode(gpio.BCM)                # TODO uncomment
+        # gpio.setup(self.stp_pin, gpio.OUT)    # TODO uncomment
+        # gpio.setup(self.dir_pin, gpio.OUT)    # TODO uncomment
+        # gpio.setup(self.ena_pin, gpio.OUT)    # TODO uncomment
+        # gpio.setup(self.end_pin, gpio.IN)     # TODO uncomment
 
         # Désactivation du mode d'arrêt d'urgence (enable)
         # gpio.output(self.ena_pin, gpio.HIGH)  # TODO check this
@@ -48,10 +51,16 @@ class Motor:
         Returns:
             One step done.
         """
-        gpio.output(self.stp_pin, gpio.HIGH) # TODO uncomment
+        # gpio.output(self.stp_pin, gpio.HIGH) # TODO uncomment
         time.sleep(self.delay)
-        gpio.output(self.stp_pin, gpio.LOW) # TODO uncomment
+        # gpio.output(self.stp_pin, gpio.LOW) # TODO uncomment
         time.sleep(self.delay)
+
+        if self.sens == 1:
+            self.n_step += 1
+
+        elif self.sens == -1:
+            self.n_step -= 1
 
     def direction(self, motor_dir: str):
         """Choose the motor direction.
@@ -61,12 +70,12 @@ class Motor:
         """
 
         if motor_dir == 'forward':
-            md = 1  # TODO remove before push
-            gpio.output(self.dir_pin, gpio.HIGH)   # TODO uncomment
+            self.sens = 1
+            # gpio.output(self.dir_pin, gpio.HIGH)   # TODO uncomment
 
         elif motor_dir == 'backward':
-            md = -1 # TODO remove before push
-            gpio.output(self.dir_pin, gpio.LOW)   # TODO uncomment
+            self.sens = -1
+            # gpio.output(self.dir_pin, gpio.LOW)   # TODO uncomment
 
         else:
             print('Incorrect direction')
@@ -74,12 +83,12 @@ class Motor:
     def lock_motor(self, motor_ena: str):
 
         if motor_ena == 'lock':
-            me = 1 # TODO remove before push
-            gpio.output(self.ena_pin, gpio.HIGH)  # TODO uncomment
+            me = 1  # TODO remove before push
+            # gpio.output(self.ena_pin, gpio.HIGH)  # TODO uncomment
 
         elif motor_ena == 'unlock':
-            me = -1 # TODO remove before push
-            gpio.output(self.ena_pin, gpio.LOW)   # TODO uncomment
+            me = -1  # TODO remove before push
+            # gpio.output(self.ena_pin, gpio.LOW)   # TODO uncomment
 
         else:
             print('Incorrect cannot un/lock the motor')
@@ -95,24 +104,24 @@ class Motor:
         """
         if angle >= 0:
             self.direction('forward')
-            gpio.output(self.dir_pin, gpio.HIGH)
-        else:
+            # gpio.output(self.dir_pin, gpio.HIGH) # TODO uncomment
+        elif angle <= 0:
             self.direction('backward')
-            gpio.output(self.dir_pin, gpio.LOW)
+            # gpio.output(self.dir_pin, gpio.LOW) # TODO uncomment
 
         # Calcul du nombre de step pour satisfaire l'angle
-        deg_stp = (360 / self.driver_stp) * self.ratio_eng
-        tgt_stp = abs(angle) / deg_stp
-        int_tgt_stp = round(tgt_stp)
+
+        tgt_stp = round(angle / self.deg_stp)
 
         # Rotation du moteur
-        for i in range(int_tgt_stp):
+        for i in range(abs(tgt_stp)):
             self.one_step()
-            #print(i * (360 / self.driver_stp) * self.ratio_eng)
+            # print(self.motor_type, '  ',self.deg_stp * self.n_step) # DELETE
 
-        self.current_angle = int_tgt_stp * deg_stp
+        # self.n_step += tgt_stp
+        self.current_angle = self.deg_stp * self.n_step
 
-        return self.current_angle
+        return
 
     def homing(self):
         """Rotate motor until it stops to the start position.
@@ -126,11 +135,11 @@ class Motor:
             # if gpio.input(self.end_pin) == gpio.LOW:  # TODO uncomment
 
             # gpio.output(self.dir_pin, gpio.HIGH)  # TODO check this
-            sens = 1                                # TODO remove before push
+            sens = 1  # TODO remove before push
             self.rotate(3)
 
             # gpio.output(self.dir_pin, gpio.LOW)   # TODO check this
-            sens = -1                               # TODO remove before push
+            sens = -1  # TODO remove before push
 
             # while gpio.input(self.end_pin) == gpio.LOW:   # TODO uncomment
             # while state_end == 0:                         # TODO uncomment
@@ -142,16 +151,14 @@ class Motor:
         else:
             print('Motor Already Initialize')
 
-        return self.current_angle
-
     def position_ref(self):
         """Set the current angle as new referential
 
         Returns:
 
         """
-        self.current_angle = 0.0
-        return self.current_angle
+        self.n_step = 0
+        self.current_angle = 0
 
     def set_speed(self, speed):
         """Set the motor's speed, you must respect the limitation.
