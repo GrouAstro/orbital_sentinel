@@ -1,12 +1,12 @@
 from skyfield.api import EarthSatellite, load, wgs84, Topos
-#from orbital_sentinel.tracker.robot_structs.tracker import Tracker
 import math as m
-import types
+from time import sleep
 
 
 class Orbital_target_natural:
 
     def __init__(self, id_body: str):
+
         self.ts = load.timescale()
         self.id = id_body
         self.visibility = 0
@@ -18,7 +18,38 @@ class Orbital_target_natural:
         self.type_name = 'init'
         self.ephemeris = load('de421.bsp')
 
-    def compute_position(self, lat, lon, alt):
+    def change_target(self, new_target: str):
+        """
+
+        Args:
+            new_target:
+
+        Returns:
+
+        """
+
+        table = {'mercury', 'venus', 'earth',
+                 'mars', 'jupiter barycenter', 'saturn barycenter',
+                 'uranus barycenter', 'neptune barycenter', 'pluto barycenter', 'moon'}
+
+        if new_target in table:
+            print('New target : ', new_target)
+            self.id = new_target  # TO DO add barycentre
+
+        else:
+            print('Incorrect please use an other one')
+
+    def compute_position(self, lat: float, lon: float, alt: float):
+        """
+
+        Args:
+            lat:
+            lon:
+            alt:
+
+        Returns:
+
+        """
 
         t = self.ts.now()
         eph_target = self.ephemeris[self.id]
@@ -36,43 +67,122 @@ class Orbital_target_natural:
         else:
             self.visibility = 0
 
-    def get_azimuth(self):
+        # data_pos = [self.azimuth, self.elevation, self.distance]
+
+        return
+
+    def print_name(self):
+        """
+
+        Returns:
+
+        """
+        print(self.id)
+
+    def get_name(self):
+        """
+
+        Returns:
+
+        """
+
+        return self.id
+
+    def print_azimuth(self):
+        """
+
+        Returns:
+
+        """
         print(self.azimuth)
 
-    def get_elevation(self):
+    def get_azimuth(self):
+        """
+
+        Returns:
+
+        """
+        return self.azimuth
+
+    def print_elevation(self):
+        """
+
+        Returns:
+
+        """
         print(self.elevation)
 
-    def get_visibility(self):
+    def get_elevation(self):
+        """
+
+        Returns:
+
+        """
+        return self.elevation
+
+    def print_distance(self):
+        """
+
+        Returns:
+
+        """
+        print(self.distance)
+
+    def get_distance(self):
+        """
+
+        Returns:
+
+        """
+        return self.distance
+
+    def get_position(self):
+        """
+
+        Returns:
+
+        """
+        print('Azimuth : ', round(self.azimuth, 2),
+              ' | Elevation : ', round(self.elevation, 2))
+
+    def print_visibility(self):
+        """
+
+        Returns:
+
+        """
         if self.visibility == 1:
             print('Target in the sky')
         else:
             print('Target not available')
 
+    def get_visibility(self):
+        """
 
-class Orbital_target_earth:
+        Returns:
 
-    def __init__(self, tle_info):
-        self.ts = load.timescale()
-        self.info = list(tle_info)
-        self.velocity = 0
-        self.altitude = 0
-        self.longitude = 0
-        self.latitude = 0
-        self.target_mod = 0
-        self.type_name = 'init'
-        self.type_id = tle_info[0]
+        """
+        return self.visibility
 
-    # def change_target(self, new_target):
+    def tracking_data(self, lat: float, lon: float, alt: float):
+        """
 
-    def compute_geo_pos(self):
-        t = self.ts.now()
-        eph_sat = EarthSatellite(self.info[1], self.info[2], self.type_id, self.ts)
-        geocentric = eph_sat.at(t)
-        self.latitude, self.longitude = wgs84.latlon_of(geocentric)
-        xyz = geocentric.position.km
-        self.altitude = m.sqrt(xyz[0] ** 2 + xyz[1] ** 2 + xyz[2] ** 2) - 6378
+        Args:
+            lat:
+            lon:
+            alt:
 
-    def get_geo_pos(self):
-        print(self.latitude)
-        print(self.longitude)
-        print(self.altitude)
+        Returns:
+
+        """
+
+        while True:
+
+            try:
+                self.compute_position(lat, lon, alt)
+                self.get_position()
+                sleep(0.05)
+
+            except KeyboardInterrupt:
+                print('Stop tracking mod')
+                break
